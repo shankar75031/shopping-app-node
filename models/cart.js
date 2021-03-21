@@ -1,6 +1,5 @@
 const path = require("path");
 const fs = require("fs");
-const { json } = require("body-parser");
 
 const p = path.join(
   path.dirname(process.mainModule.filename),
@@ -38,8 +37,8 @@ module.exports = class Cart {
       }
       cart.totalPrice = cart.totalPrice + +productPrice;
       console.log("near writeFile");
-      fs.writeFile(p, JSON.stringify(cart), (err) => {
-        console.log(err);
+      fs.writeFile(p, JSON.stringify(cart), (error) => {
+        console.log(error);
       });
     });
   }
@@ -61,6 +60,16 @@ module.exports = class Cart {
       fs.writeFile(p, JSON.stringify(updatedCart), (err) => {
         console.log(err);
       });
+    });
+  }
+
+  static getCart(cb) {
+    fs.readFile(p, (err, fileContent) => {
+      const cart = JSON.parse(fileContent);
+      if (err) {
+        cb(null);
+      }
+      cb(cart);
     });
   }
 };
