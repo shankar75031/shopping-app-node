@@ -8,8 +8,10 @@ const sequelize = require("./util/database");
 
 const Product = require("./models/product");
 const User = require("./models/user");
-const CartItem = require("./models/cartItem");
 const Cart = require("./models/cart");
+const Order = require("./models/order");
+const CartItem = require("./models/cartItem");
+const OrderItem = require("./models/orderItem");
 const app = express();
 
 app.set("view engine", "ejs");
@@ -43,12 +45,16 @@ User.hasOne(Cart);
 Cart.belongsTo(User);
 Cart.belongsToMany(Product, { through: CartItem });
 Product.belongsToMany(Cart, { through: CartItem });
+Order.belongsTo(User);
+User.hasMany(Order);
+Order.belongsToMany(Product, { through: OrderItem });
+Product.belongsToMany(Order, { through: OrderItem });
 
 // initialize tables. dont force in production.
+let selectedUser;
+// { force: true }
 sequelize
-  .sync
-  // { force: true }
-  ()
+  .sync()
   .then((result) => {
     return User.findByPk(1);
   })
@@ -59,7 +65,15 @@ sequelize
     return user;
   })
   .then((user) => {
-    return user.createCart();
+    selectedUser = user;
+    return user.getCart();
+  })
+  .then((cart) => {
+    if (!cart) {
+      return selectedUser.createCart();
+    } else {
+      return cart;
+    }
   })
   .then((cart) => {
     app.listen(3000);
