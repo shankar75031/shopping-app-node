@@ -5,7 +5,7 @@ const adminRoutes = require("./routes/admin");
 const shopRoutes = require("./routes/shop");
 const errorController = require("./controllers/error");
 const { mongoConnect } = require("./util/database");
-
+const User = require("./models/user");
 const app = express();
 
 app.set("view engine", "ejs");
@@ -16,13 +16,12 @@ app.use(express.static(path.join(__dirname, "public")));
 
 // Middleware to add user to the request object
 app.use((req, res, next) => {
-  // User.findByPk(1)
-  //   .then((user) => {
-  //     req.user = user;
-  //     next();
-  //   })
-  //   .catch((err) => console.error(err));
-  next();
+  User.findById("605b8e2c7d2011f86688620b")
+    .then((user) => {
+      req.user = user;
+      next();
+    })
+    .catch((err) => console.error(err));
 });
 
 app.use("/admin", adminRoutes);
