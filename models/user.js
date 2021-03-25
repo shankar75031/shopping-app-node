@@ -1,6 +1,6 @@
 const mongoose = require("mongoose");
 const Schema = mongoose.Schema;
-const Product = require("./product");
+
 const userSchema = new Schema({
   name: {
     type: String,
@@ -69,6 +69,11 @@ userSchema.methods.deleteItemFromCart = function (productId) {
     (item) => item.productId.toString() !== productId.toString()
   );
   this.cart.items = updatedCartItems;
+  return this.save();
+};
+
+userSchema.methods.clearCart = function () {
+  this.cart = { items: [] };
   return this.save();
 };
 
