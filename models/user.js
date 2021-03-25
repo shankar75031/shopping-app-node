@@ -1,5 +1,6 @@
 const mongoose = require("mongoose");
 const Schema = mongoose.Schema;
+const Product = require("./product");
 const userSchema = new Schema({
   name: {
     type: String,
@@ -45,6 +46,22 @@ userSchema.methods.addToCart = function (product) {
   };
   this.cart = updatedCart;
   return this.save();
+};
+
+userSchema.methods.getCart = function () {
+  return this.cart
+    .toArray()
+    .then((products) => {
+      return products.map((p) => {
+        return {
+          ...p,
+          quantity: this.cart.items.find((i) => {
+            return i.productId.toString() === p._id.toString();
+          }).quantity,
+        };
+      });
+    })
+    .catch((err) => console.error(err));
 };
 
 module.exports = mongoose.model("User", userSchema);
