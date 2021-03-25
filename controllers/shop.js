@@ -88,7 +88,7 @@ exports.postOrder = (req, res, next) => {
           name: req.user.name,
           userId: req.user,
         },
-        items: products,
+        products: products,
       });
       return order.save();
     })
@@ -102,8 +102,7 @@ exports.postOrder = (req, res, next) => {
 };
 
 exports.getOrders = (req, res, next) => {
-  req.user
-    .getOrders()
+  Order.find({ "user.userId": req.user._id })
     .then((orders) => {
       res.render("shop/orders", {
         pageTitle: "Your Orders",
