@@ -1,10 +1,11 @@
 exports.getLogin = (req, res, next) => {
-  const isLoggedIn =
-    req.get("Cookie").split(";")[0].trim().split("=")[1] === "true";
+  console.log(req.session.isLoggedIn);
+  //   const isLoggedIn =
+  //     req.get("Cookie").split(";")[0].trim().split("=")[1] === "true";
   res.render("auth/login", {
     path: "/login",
     pageTitle: "Login",
-    isAuthenticated: isLoggedIn,
+    isAuthenticated: false,
   });
 };
 
@@ -13,6 +14,6 @@ exports.postLogin = (req, res, next) => {
   //   Add Secure if to use cookie in https site only
   // Add Domain to set domain to which to send cookie
   //   HttpOnly for accessing the cookie value only through http and not through client side js
-  res.setHeader("Set-Cookie", "loggedIn=true");
+  req.session.isLoggedIn = true;
   res.redirect("/");
 };
