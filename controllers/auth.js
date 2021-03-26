@@ -9,6 +9,10 @@ exports.getLogin = (req, res, next) => {
 };
 
 exports.postLogin = (req, res, next) => {
+  // Add Expires=httpdate or Max-Age=no. of seconds to expiry
+  //   Add Secure if to use cookie in https site only
+  // Add Domain to set domain to which to send cookie
+  //   HttpOnly for accessing the cookie value only through http and not through client side js
   res.setHeader("Set-Cookie", "loggedIn=true");
   res.redirect("/");
 };

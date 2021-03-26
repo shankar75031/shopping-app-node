@@ -1,6 +1,7 @@
 const path = require("path");
 const express = require("express");
 const mongoose = require("mongoose");
+const session = require("express-session");
 const bodyParser = require("body-parser");
 const adminRoutes = require("./routes/admin");
 const shopRoutes = require("./routes/shop");
@@ -17,6 +18,14 @@ app.set("views", "views");
 
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(express.static(path.join(__dirname, "public")));
+app.use(
+  session({
+    secret: "olaf",
+    resave: false, // Session will not be saved on every requires
+    saveUninitialized: false, // Session is not saved for a request that doesn't require to save the session
+    // You can also configure session cookie here
+  })
+);
 
 // Middleware to add user to the request object
 app.use((req, res, next) => {
