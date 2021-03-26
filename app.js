@@ -37,7 +37,10 @@ app.use(
 
 // Middleware to add user to the request object
 app.use((req, res, next) => {
-  User.findById("605ceda69fab784320205c1a")
+  if (!req.session.user) {
+    return next();
+  }
+  User.findById(req.session.user._id)
     .then((user) => {
       req.user = user;
       next();

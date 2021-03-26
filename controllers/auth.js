@@ -1,26 +1,29 @@
+const User = require('../models/user');
+
 exports.getLogin = (req, res, next) => {
-  console.log(req.session.isLoggedIn);
-  //   const isLoggedIn =
-  //     req.get("Cookie").split(";")[0].trim().split("=")[1] === "true";
-  res.render("auth/login", {
-    path: "/login",
-    pageTitle: "Login",
-    isAuthenticated: false,
+  res.render('auth/login', {
+    path: '/login',
+    pageTitle: 'Login',
+    isAuthenticated: false
   });
 };
 
 exports.postLogin = (req, res, next) => {
-  // Add Expires=httpdate or Max-Age=no. of seconds to expiry
-  //   Add Secure if to use cookie in https site only
-  // Add Domain to set domain to which to send cookie
-  //   HttpOnly for accessing the cookie value only through http and not through client side js
-  req.session.isLoggedIn = true;
-  res.redirect("/");
+  User.findById('5bab316ce0a7c75f783cb8a8')
+    .then(user => {
+      req.session.isLoggedIn = true;
+      req.session.user = user;
+      req.session.save(err => {
+        console.log(err);
+        res.redirect('/');
+      });
+    })
+    .catch(err => console.log(err));
 };
 
 exports.postLogout = (req, res, next) => {
-  req.session.destroy((err) => {
+  req.session.destroy(err => {
     console.log(err);
-    res.redirect("/");
+    res.redirect('/');
   });
 };
