@@ -3,6 +3,7 @@ const express = require("express");
 const mongoose = require("mongoose");
 const session = require("express-session");
 const csrf = require("csurf");
+const flash = require("connect-flash");
 const bodyParser = require("body-parser");
 const adminRoutes = require("./routes/admin");
 const shopRoutes = require("./routes/shop");
@@ -38,6 +39,7 @@ app.use(
   })
 );
 app.use(csrfProtection);
+app.use(flash());
 
 // Middleware to add user to the request object
 app.use((req, res, next) => {
