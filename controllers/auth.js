@@ -1,5 +1,14 @@
 const bcrypt = require("bcryptjs");
+const nodemailer = require("nodemailer");
+const sendInBlueTransport = require("nodemailer-sendinblue-transport");
 const User = require("../models/user");
+
+const transporter = nodemailer.createTransport(
+  sendInBlueTransport({
+    apiKey: process.env.SENDINBLUE_API_KEY,
+    apiUrl: "https://api.sendinblue.com/v3.0",
+  })
+);
 
 exports.getLogin = (req, res, next) => {
   let message = req.flash("error");
@@ -81,6 +90,12 @@ exports.postSignUp = (req, res, next) => {
         })
         .then((result) => {
           res.redirect("/login");
+          return transporter.sendMail({
+            to: email,
+            from: "shankar75031@gmail.com",
+            subject: "Welcome to Shoppi",
+            html: "<h1>Sign up successful</h1>",
+          });
         })
         .catch((err) => console.error(err));
     })
