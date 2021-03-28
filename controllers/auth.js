@@ -48,6 +48,7 @@ exports.getSignUp = (req, res, next) => {
       password: "",
       confirmPassword: "",
     },
+    validationErrors: [],
   });
 };
 
@@ -127,28 +128,27 @@ exports.postSignUp = (req, res, next) => {
       },
       validationErrors: errors.array(),
     });
-  } else {
-    bcrypt
-      .hash(password, 12)
-      .then((hashedPassword) => {
-        const user = new User({
-          email: email,
-          password: hashedPassword,
-          cart: { items: [] },
-        });
-        return user.save();
-      })
-      .then((result) => {
-        res.redirect("/login");
-        return transporter.sendMail({
-          to: email,
-          from: "shankar75031@gmail.com",
-          subject: "Welcome to Shoppi",
-          html: "<h1>Sign up successful</h1>",
-        });
-      })
-      .catch((err) => console.error(err));
   }
+  bcrypt
+    .hash(password, 12)
+    .then((hashedPassword) => {
+      const user = new User({
+        email: email,
+        password: hashedPassword,
+        cart: { items: [] },
+      });
+      return user.save();
+    })
+    .then((result) => {
+      res.redirect("/login");
+      return transporter.sendMail({
+        to: email,
+        from: "shankar75031@gmail.com",
+        subject: "Welcome to Shoppi",
+        html: "<h1>Sign up successful</h1>",
+      });
+    })
+    .catch((err) => console.error(err));
 };
 
 exports.postLogout = (req, res, next) => {
