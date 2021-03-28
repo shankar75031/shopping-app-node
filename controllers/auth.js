@@ -67,10 +67,33 @@ exports.postLogin = (req, res, next) => {
       },
       validationErrors: errors.array(),
     });
-  } else {
-    User.findOne({ email: email })
-      .then((user) => {
-        if (!user) {
+  }
+  User.findOne({ email: email })
+    .then((user) => {
+      if (!user) {
+        return res.status(422).render("auth/login", {
+          path: "/login",
+          pageTitle: "Login",
+          errorMessage: "Invalid email or password",
+          oldInput: {
+            email: email,
+            password: password,
+          },
+          validationErrors: [],
+        });
+      }
+      bcrypt
+        .compare(password, user.password)
+        .then((doMatch) => {
+          // If password match or do not match we reach then block
+          if (doMatch) {
+            req.session.isLoggedIn = true;
+            req.session.user = user;
+            return req.session.save((err) => {
+              console.log(err);
+              return res.redirect("/");
+            });
+          }
           return res.status(422).render("auth/login", {
             path: "/login",
             pageTitle: "Login",
@@ -81,34 +104,10 @@ exports.postLogin = (req, res, next) => {
             },
             validationErrors: [],
           });
-        }
-        bcrypt
-          .compare(password, user.password)
-          .then((doMatch) => {
-            // If password match or do not match we reach then block
-            if (doMatch) {
-              req.session.isLoggedIn = true;
-              req.session.user = user;
-              return req.session.save((err) => {
-                console.log(err);
-                return res.redirect("/");
-              });
-            }
-            return res.status(422).render("auth/login", {
-              path: "/login",
-              pageTitle: "Login",
-              errorMessage: "Invalid email or password",
-              oldInput: {
-                email: email,
-                password: password,
-              },
-              validationErrors: [],
-            });
-          })
-          .catch((err) => console.error(err));
-      })
-      .catch((err) => console.log(err));
-  }
+        })
+        .catch((err) => console.error(err));
+    })
+    .catch((err) => console.log(err));
 };
 
 exports.postSignUp = (req, res, next) => {
