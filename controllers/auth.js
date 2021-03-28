@@ -99,6 +99,7 @@ exports.postSignUp = (req, res, next) => {
         password: password,
         confirmPassword: confirmPassword,
       },
+      validationErrors: errors.array(),
     });
   }
 
