@@ -4,14 +4,15 @@
 </head>
 
 <body>
-
    <%- include('../includes/navigation.ejs') %>
 
     <main>
         <% if(errorMessage) {%> 
             <div class="user-message user-message--error"><%= errorMessage %> </div>
-            <% } %>  <form class="login-form" action="/login" method="POST">
-            <div class="form-control">
+            <% } %> 
+        <form class="login-form" action="/signup" method="POST">
+          <input type="hidden" value="<%= csrfToken %>" name="_csrf" />
+          <div class="form-control">
                 <label for="email">E-Mail</label>
                 <input type="email" name="email" id="email">
             </div>
@@ -19,8 +20,10 @@
                 <label for="password">Password</label>
                 <input type="password" name="password" id="password">
             </div>
-          <input type="hidden" value="<%= csrfToken %>" name="_csrf" />
-
+            <div class="form-control">
+                <label for="confirmPassword">Confirm Password</label>
+                <input type="password" name="confirmPassword" id="confirmPassword">
+            </div>
             <button class="btn" type="submit">Login</button>
         </form>
     </main>
