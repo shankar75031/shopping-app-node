@@ -1,5 +1,3 @@
-const mongoose = require("mongoose");
-
 const { validationResult } = require("express-validator/check");
 
 const Product = require("../models/product");
@@ -178,8 +176,8 @@ exports.getProducts = (req, res, next) => {
     });
 };
 
-exports.postDeleteProduct = (req, res, next) => {
-  const prodId = req.body.productId;
+exports.deleteProduct = (req, res, next) => {
+  const prodId = req.params.productId;
   Product.findById(prodId)
     .then((product) => {
       if (!product) {
@@ -190,12 +188,9 @@ exports.postDeleteProduct = (req, res, next) => {
     })
     .then(() => {
       console.log("DESTROYED PRODUCT");
-      res.redirect("/admin/products");
+      res.status(200).json({ message: "Success!" });
     })
     .catch((err) => {
-      const error = new Error(err);
-      error.httpStatusCode = 500;
-      error.isLoggedIn = req.session.isLoggedIn;
-      return next(error);
+      res.status(500).json({ message: "Deleting product failed." });
     });
 };
