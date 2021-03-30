@@ -53,8 +53,8 @@ exports.getProduct = (req, res, next) => {
         path: "/products",
       });
     })
-    .catch((err) => {
-      const error = new Error(err);
+    .catch((error) => {
+      const error = new Error(error);
       error.httpStatusCode = 500;
       error.isLoggedIn = req.session.isLoggedIn;
       return next(error);
