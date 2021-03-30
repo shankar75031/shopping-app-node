@@ -1,8 +1,12 @@
 const fs = require("fs");
 const path = require("path");
+const stripe = require("stripe")(
+  "sk_test_51IZiYjSAYbINUofYWtjmVN8rcHOZCEPDsiOYAv7em9rolLWCKSBPMphsj0yGseKQuZeS4nsFef1cis5kNTb1Z2s2005OtQZzbI"
+);
 const PDFDocument = require("pdfkit");
 const Product = require("../models/product");
 const Order = require("../models/order");
+const product = require("../models/product");
 
 const ITEMS_PER_PAGE = 2;
 
@@ -176,29 +180,58 @@ exports.postOrder = (req, res, next) => {
     .populate("cart.items.productId")
     .execPopulate()
     .then((user) => {
-      const products = user.cart.items.map((i) => {
-        return { quantity: i.quantity, product: { ...i.productId._doc } };
+      const products = user.cart.items;
+      let totalSum = 0;
+      products.forEach((prod) => {
+        totalSum += prod.quantity * prod.productId.price;
       });
-      const order = new Order({
-        user: {
-          email: req.user.email,
-          userId: req.user,
-        },
-        products: products,
+      // res.render("shop/checkout", {
+      //   path: "/checkout",
+      //   pageTitle: "Checkout",
+      //   products: products,
+      //   totalSum: totalSum,
+      // });
+      return stripe.paymentIntents.create({
+        amount: totalSum * 100,
+        currency: "usd",
       });
-      return order.save();
     })
-    .then((result) => {
-      return req.user.clearCart();
+    .then((paymentIntent) => {
+      res.status(200).send({
+        clientSecret: paymentIntent.client_secret,
+      });
+      // res.status(200).json({ id: session.id });
     })
-    .then(() => {
-      res.redirect("/orders");
-    })
+
+    // req.user
+    //   .populate("cart.items.productId")
+    //   .execPopulate()
+    //   .then((user) => {
+    //     const products = user.cart.items.map((i) => {
+    //       return { quantity: i.quantity, product: { ...i.productId._doc } };
+    //     });
+    //     const order = new Order({
+    //       user: {
+    //         email: req.user.email,
+    //         userId: req.user,
+    //       },
+    //       products: products,
+    //     });
+    //     return order.save();
+    //   })
+    //   .then((result) => {
+    //     return req.user.clearCart();
+    //   })
+    //   .then(() => {
+    //     res.redirect("/orders");
+    //   })
     .catch((err) => {
-      const error = new Error(err);
-      error.httpStatusCode = 500;
-      error.isLoggedIn = req.session.isLoggedIn;
-      return next(error);
+      console.log(err);
+      // const error = new Error(err);
+      // error.httpStatusCode = 500;
+      // error.isLoggedIn = req.session.isLoggedIn;
+      // return next(error);
+      res.status(500).json({ message: "Checkout failed." });
     });
 };
 
