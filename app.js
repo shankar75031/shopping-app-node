@@ -15,7 +15,7 @@ const User = require("./models/user");
 const MongoDBStore = require("connect-mongodb-session")(session);
 const { ObjectId } = require("bson");
 
-const MONGODB_URI = `mongodb+srv://${process.env.MONGODB_USERNAME}:${process.env.MONGODB_PASSWORD}@cluster0.edrzp.mongodb.net/shop?retryWrites=true&w=majority`;
+const MONGODB_URI = `mongodb+srv://${process.env.MONGODB_USERNAME}:${process.env.MONGODB_PASSWORD}@cluster0.edrzp.mongodb.net/${process.env.DATABASE_NAME}?retryWrites=true&w=majority`;
 
 const app = express();
 const store = new MongoDBStore({
@@ -112,7 +112,7 @@ app.use((error, req, res, next) => {
 mongoose
   .connect(MONGODB_URI)
   .then((result) => {
-    app.listen(3000);
+    app.listen(process.env.PORT || 3000);
   })
   .catch((err) => {
     console.log(err);
