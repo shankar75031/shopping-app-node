@@ -4,6 +4,9 @@ const mongoose = require("mongoose");
 const multer = require("multer");
 const session = require("express-session");
 const csrf = require("csurf");
+const helmet = require("helmet");
+const compression = require("compression");
+const dotenv = require("dotenv");
 const flash = require("connect-flash");
 const hash = require("random-hash");
 const bodyParser = require("body-parser");
@@ -15,7 +18,10 @@ const User = require("./models/user");
 const MongoDBStore = require("connect-mongodb-session")(session);
 const { ObjectId } = require("bson");
 
+dotenv.config()
+
 const MONGODB_URI = `mongodb+srv://${process.env.MONGODB_USERNAME}:${process.env.MONGODB_PASSWORD}@cluster0.edrzp.mongodb.net/${process.env.DATABASE_NAME}?retryWrites=true&w=majority`;
+
 
 const app = express();
 const store = new MongoDBStore({
@@ -48,6 +54,9 @@ const fileFilter = (req, file, cb) => {
 
 app.set("view engine", "ejs");
 app.set("views", "views");
+
+app.use(helmet())
+app.use(compression())
 
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(
@@ -112,6 +121,7 @@ app.use((error, req, res, next) => {
 mongoose
   .connect(MONGODB_URI)
   .then((result) => {
+    console.log("DB CONNECTED");
     app.listen(process.env.PORT || 3000);
   })
   .catch((err) => {
