@@ -1,6 +1,7 @@
 const path = require("path");
 const fs = require("fs");
 const express = require("express");
+const https = require("https");
 const mongoose = require("mongoose");
 const multer = require("multer");
 const session = require("express-session");
@@ -18,12 +19,10 @@ const authRoutes = require("./routes/auth");
 const errorController = require("./controllers/error");
 const User = require("./models/user");
 const MongoDBStore = require("connect-mongodb-session")(session);
-const { ObjectId } = require("bson");
 
 dotenv.config()
 
 const MONGODB_URI = `mongodb+srv://${process.env.MONGODB_USERNAME}:${process.env.MONGODB_PASSWORD}@cluster0.edrzp.mongodb.net/${process.env.DATABASE_NAME}?retryWrites=true&w=majority`;
-
 
 const app = express();
 const store = new MongoDBStore({
@@ -31,6 +30,9 @@ const store = new MongoDBStore({
   collection: "sessions",
 });
 const csrfProtection = csrf();
+
+const privateKey = fs.readFileSync('server.key')
+const certificate = fs.readFileSync('server.cert')
 
 const fileStorage = multer.diskStorage({
   destination: (req, file, cb) => {
@@ -126,7 +128,7 @@ mongoose
   .connect(MONGODB_URI)
   .then((result) => {
     console.log("DB CONNECTED");
-    app.listen(process.env.PORT || 3000);
+    https.createServer({key: privateKey, cert: certificate}, app).listen(process.env.PORT || 3000);
   })
   .catch((err) => {
     console.log(err);
