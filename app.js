@@ -1,4 +1,5 @@
 const path = require("path");
+const fs = require("fs");
 const express = require("express");
 const mongoose = require("mongoose");
 const multer = require("multer");
@@ -7,6 +8,7 @@ const csrf = require("csurf");
 const helmet = require("helmet");
 const compression = require("compression");
 const dotenv = require("dotenv");
+const morgan = require("morgan");
 const flash = require("connect-flash");
 const hash = require("random-hash");
 const bodyParser = require("body-parser");
@@ -55,8 +57,10 @@ const fileFilter = (req, file, cb) => {
 app.set("view engine", "ejs");
 app.set("views", "views");
 
+const accessLogStream = fs.createWriteStream(path.join(__dirname, 'access.log'), {flags: 'a'})
 app.use(helmet())
 app.use(compression())
+app.use(morgan('combined', {stream: accessLogStream}))
 
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(
